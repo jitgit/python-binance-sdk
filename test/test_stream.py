@@ -8,6 +8,7 @@ from binance import (
 )
 
 from binance.common.constants import STREAM_HOST
+from binance.common.utils import create_future
 
 from .common import (
     PORT,
@@ -16,7 +17,7 @@ from .common import (
 
 
 async def run_stream():
-    f = asyncio.Future()
+    f = create_future()
 
     async def on_message(msg):
         f.set_result(msg)

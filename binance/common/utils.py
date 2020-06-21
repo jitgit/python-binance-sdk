@@ -1,6 +1,7 @@
 import json
 import inspect
 import warnings
+import asyncio
 from typing import (
     Any,
     Optional
@@ -75,3 +76,11 @@ And you should fix this""", event_name, repr_exception(e)),
             )
 
     return callback
+
+
+def create_future() -> asyncio.Future:
+    """
+    Do not use `asyncio.Future()` which
+    could not bind the Future with the current running event loop
+    """
+    return asyncio.get_running_loop().create_future()

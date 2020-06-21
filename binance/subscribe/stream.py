@@ -1,6 +1,7 @@
 import json
 import logging
 import asyncio
+from asyncio import Future
 from typing import (
     Optional,
     Dict,
@@ -26,7 +27,8 @@ from binance.common.utils import (
     json_stringify,
     format_msg,
     repr_exception,
-    wrap_event_callback
+    wrap_event_callback,
+    create_future
 )
 
 from binance.common.exceptions import (
@@ -69,7 +71,7 @@ class Stream:
     """
 
     _socket: Optional[WebSocketClientProtocol]
-    _message_futures: Dict[int, asyncio.Future]
+    _message_futures: Dict[int, Future]
 
     def __init__(
         self,
@@ -79,7 +81,7 @@ class Stream:
         # We redundant the default value here,
         #   because `binance.Stream` is also a public class
         retry_policy: RetryPolicy = DEFAULT_RETRY_POLICY,
-        timeout: Timeout = DEFAULT_STREAM_TIMEOUT,
+        timeout: Timeout = DEFAULT_STREAM_TIMEOUT
     ) -> None:
         self._on_message = wrap_event_callback(on_message, ON_MESSAGE, True)
         self._on_connected = wrap_event_callback(
@@ -159,7 +161,7 @@ class Stream:
         del self._message_futures[message_id]
 
     def _before_connect(self) -> None:
-        self._open_future = asyncio.Future()
+        self._open_future = create_future()
 
     async def _receive(self) -> None:
         try:
@@ -325,7 +327,7 @@ class Stream:
             else:
                 raise StreamDisconnectedException(self._uri)
 
-        future = asyncio.Future()
+        future = create_future()
 
         message_id = self._message_id
         self._message_id += 1

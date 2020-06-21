@@ -1,5 +1,4 @@
 import pytest
-import asyncio
 
 from binance import (
     Client,
@@ -17,6 +16,7 @@ from binance import (
 
     HandlerExceptionHandlerBase
 )
+from binance.common.utils import create_future
 
 
 @pytest.fixture
@@ -54,7 +54,7 @@ async def run_handler(
     expect_payload=None,
     stream='fake'
 ):
-    future = asyncio.Future()
+    future = create_future()
 
     if expect_payload is None:
         expect_payload = payload
@@ -227,7 +227,7 @@ async def test_all_market_ticker(client):
 
 @pytest.mark.asyncio
 async def test_handler_exception_handler(client):
-    future = asyncio.Future()
+    future = create_future()
 
     e = ValueError('this is an exception for testing, not a bug')
 

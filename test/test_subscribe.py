@@ -18,6 +18,7 @@ from binance import (
     HandlerExceptionHandlerBase,
     UnsupportedSubTypeException
 )
+from binance.common.utils import create_future
 
 
 @pytest.fixture
@@ -57,7 +58,7 @@ async def test_ticker_handler(client):
 async def test_handler_exception_handler(client):
     exc = Exception()
 
-    f = asyncio.Future()
+    f = create_future()
 
     class TickerPrinter(TickerHandlerBase):
         def receive(self, payload):
@@ -109,7 +110,7 @@ async def test_invalid_subtype_symbol(client):
 
 @pytest.mark.asyncio
 async def test_client_handler(client):
-    f = asyncio.Future()
+    f = create_future()
 
     class TickerHandler(TickerHandlerBase):
         # async receiver
@@ -129,7 +130,7 @@ async def test_client_handler(client):
 
 @pytest.mark.asyncio
 async def test_client_kline_handler(client):
-    f = asyncio.Future()
+    f = create_future()
 
     class KlineHandler(KlineHandlerBase):
         # async receiver
@@ -148,7 +149,7 @@ async def test_client_kline_handler(client):
 
 
 async def run_orderbook_handler(client, init_orderbook_first):
-    f = asyncio.Future()
+    f = create_future()
 
     class OrderBookHandler(OrderBookHandlerBase):
         def receive(self, payload):

@@ -42,7 +42,8 @@ client = Client()
 async def main():
     print(await client.get_exchange_info())
 
-asyncio.run(main())
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
 ```
 
 ## Handling messages

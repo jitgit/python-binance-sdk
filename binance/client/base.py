@@ -84,10 +84,8 @@ class ClientBase:
         self,
         api_key: Optional[str]
     ) -> ClientSession:
-        loop = asyncio.get_event_loop()
-
         session = ClientSession(
-            loop=loop,
+            loop=asyncio.get_running_loop(),
             headers=get_headers(api_key)
         )
         return session

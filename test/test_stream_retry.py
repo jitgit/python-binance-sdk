@@ -2,6 +2,7 @@ import pytest
 import asyncio
 
 from binance import Stream
+from binance.common.utils import create_future
 
 from .common import (
     PORT,
@@ -16,7 +17,7 @@ async def test_stream_timeout_disconnect_reconnect():
             self.reset()
 
         def reset(self):
-            self.f = asyncio.Future()
+            self.f = create_future()
 
         def receive(self, msg):
             if not self.f.done():

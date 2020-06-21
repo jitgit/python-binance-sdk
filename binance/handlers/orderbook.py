@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import Future
 from typing import (
     Iterable,
     Optional
@@ -19,7 +20,10 @@ from binance.common.constants import (
     NO_RETRY_POLICY
 )
 
-from binance.common.utils import normalize_symbol
+from binance.common.utils import (
+    normalize_symbol,
+    create_future
+)
 from binance.common.exceptions import OrderBookFetchAbandonedException
 
 KEY_FIRST_UPDATE_ID = 'U'
@@ -39,6 +43,7 @@ class OrderBook:
     _retry_policy: RetryPolicy
     _limit: int
     _last_update_id: int
+    __updated_future: Optional[Future]
 
     # We redundant define the default value of limit,
     #   because OrderBook is also a public class
@@ -59,7 +64,7 @@ class OrderBook:
         # The queue to save messages that are not continuous
         self._unsolved_queue = []
         self._onchange_callbacks = None
-        self._updated_future = asyncio.Future()
+        self.__updated_future = None
 
         # Whether we are still fetching the depth snapshot
         self._fetching = False
@@ -67,6 +72,15 @@ class OrderBook:
         self.set_retry_policy(retry_policy)
         self.set_limit(limit)
         self.set_client(client)
+
+    @property
+    def _updated_future(self) -> Future:
+        future = self.__updated_future
+        if future is None:
+            future = create_future()
+            self.__updated_future = future
+
+        return future
 
     @property
     def ready(self) -> bool:
@@ -117,11 +131,11 @@ class OrderBook:
 
     def _emit_updated(self) -> None:
         self._updated_future.set_result(None)
-        self._updated_future = asyncio.Future()
+        self.__updated_future = create_future()
 
     def _emit_exception(self, exc: Exception) -> None:
         self._updated_future.set_exception(exc)
-        self._updated_future = asyncio.Future()
+        self.__updated_future = create_future()
 
     @retry('_retry_policy')
     async def _fetch_snapshot(self):
