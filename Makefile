@@ -5,7 +5,7 @@ test:
 	pytest -s -v test/test_$(test_target).py --doctest-modules --cov binance --cov-config=.coveragerc --cov-report term-missing
 
 install:
-	pip install -r requirements.txt -r test-requirements.txt
+	pip install -r -U requirements.txt -r test-requirements.txt
 	pip install pandas
 
 lint:
