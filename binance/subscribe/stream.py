@@ -195,7 +195,7 @@ class Stream:
 
     @retry(
         retry_policy='_retry_policy',
-        after_failure='_reconnect'
+        before_retry='_reconnect'
     )
     async def _connect(self) -> None:
         async with connect(self._uri) as socket:

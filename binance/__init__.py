@@ -1,4 +1,4 @@
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 from binance.client import Client
 from binance.common.constants import (
