@@ -3,7 +3,11 @@ import asyncio
 
 from aioresponses import aioresponses
 
-from binance import Client, OrderBook
+from binance import (
+    Client,
+    OrderBook,
+    OrderBookFetchAbandonedException
+)
 
 
 def test_order_book_no_client():
@@ -237,3 +241,29 @@ async def test_order_book():
         await orderbook.updated()
 
         assert_state_b()
+
+        print('round seven: fetch abandon')
+
+        def preset_error():
+            m.get(
+                'https://api.binance.com/api/v3/depth?limit=100&symbol=BTCUSDT', payload=dict(
+                    lastUpdateId=13,
+                    asks=asks1,
+                    bids=bids
+                ),
+                status=500
+            )
+
+        preset_error()
+
+        orderbook.set_retry_policy(None)
+
+        f = orderbook.updated()
+
+        asyncio.create_task(orderbook._fetch())
+
+        with pytest.raises(
+            OrderBookFetchAbandonedException,
+            match='abandoned'
+        ):
+            await f

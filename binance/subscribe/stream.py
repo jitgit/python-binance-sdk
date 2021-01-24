@@ -83,7 +83,10 @@ class Stream:
         retry_policy: RetryPolicy = DEFAULT_RETRY_POLICY,
         timeout: Timeout = DEFAULT_STREAM_TIMEOUT
     ) -> None:
+        # Will be used by `self._emit`
         self._on_message = wrap_event_callback(on_message, ON_MESSAGE, True)
+
+        # Will be used by `self._emit`
         self._on_connected = wrap_event_callback(
             on_connected,
             ON_CONNECTED,
@@ -278,17 +281,16 @@ class Stream:
 
         self._conn_task.cancel()
 
-        # results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        try:
-            # Make sure:
-            # - conn_task is cancelled
-            # - socket is closed
-            await asyncio.wait(tasks)
-        except Exception as e:
-            logger.error(
-                format_msg('close tasks error: %s', e)
-            )
+        # Make sure:
+        # - conn_task is cancelled
+        # - socket is closed
+        for coro in asyncio.as_completed(tasks):
+            try:
+                await coro
+            except Exception as e:
+                logger.error(
+                    format_msg('close tasks error: %s', e)
+                )
 
         self._socket = None
         self._closing = False

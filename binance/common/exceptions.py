@@ -85,8 +85,10 @@ class StatusException(Exception):
             except ValueError:
                 self.message = f'Invalid JSON error message from Binance: {text}'  # noqa:E501
             else:
-                self.code = json_res['code']
-                self.message = json_res['msg']
+                self.code = json_res.get('code', '<no-code>')
+                self.message = json_res.get('msg', '<no-message>')
+        else:
+            self.message = 'Binance server error'
 
         self.status = status
         self.response = response
