@@ -14,6 +14,9 @@ def test_order_book_no_client():
 @pytest.mark.asyncio
 async def test_order_book():
     with aioresponses() as m:
+
+        # Prepare
+        # -----------------------------------------------------------
         a00, b00, b01, a10 = [100, 10], [99, 100], [98, 2], [101, 3]
         asks = [a00]
         bids = [b00, b01]
@@ -52,6 +55,9 @@ async def test_order_book():
         def assert_state_c():
             assert orderbook.asks == [[95, 1], *asks1_sort]
             assert orderbook.bids == bids_sort
+
+        # Start testing
+        # -----------------------------------------------------------
 
         print('\nround one  : normal initialization')
 
@@ -181,6 +187,9 @@ async def test_order_book():
 
         print('round six  : part of unsolved_queue is invalid')
 
+        if not orderbook.ready:
+            await orderbook.updated()
+
         preset_10()
         # will fetch twice
         preset_10()
@@ -199,8 +208,6 @@ async def test_order_book():
 
         asyncio.create_task(orderbook._fetch())
 
-        f = orderbook.updated()
-
         # valid, but now is fetching
         orderbook.update(dict(
             U=11,
@@ -218,6 +225,7 @@ async def test_order_book():
         ))
 
         # orderbook will refetch
+        # now the state reset to preset_10
 
         orderbook.update(dict(
             U=11,
@@ -226,6 +234,6 @@ async def test_order_book():
             b=[]
         ))
 
-        await f
+        await orderbook.updated()
 
         assert_state_b()

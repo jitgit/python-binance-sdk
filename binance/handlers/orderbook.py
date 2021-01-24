@@ -91,12 +91,22 @@ class OrderBook:
         return not self._fetching and self._last_update_id != 0
 
     async def updated(self) -> None:
-        """Await for the next time when the orderbook is updated. Awaiting for this method is the recommended way to notify your program to do something when the orderbook changes::
+        """Await for the NEXT time when the orderbook is updated.
+
+        Awaiting for this method is the recommended way to notify your program to do something when the orderbook changes::
 
             while True:
                 await orderbook.updated()
                 await doSomethingWith(order)
+
+        Another use case is that if we want to do something only if the orderbook has finished initialization::
+
+            if not orderbook.ready:
+                await orderbook.updated()
+
+            await doSomething(order)
         """
+
         await self._updated_future
 
     def set_retry_policy(
@@ -129,12 +139,18 @@ class OrderBook:
         if not self.ready:
             self._start_fetching()
 
-    def _emit_updated(self) -> None:
-        self._updated_future.set_result(None)
-        self.__updated_future = create_future()
+    def _emit_updated(self, exc: Optional[Exception] = None) -> None:
+        if self._fetching:
+            # If the orderbook is still fetching,
+            # which means the orderbook is not completely updated,
+            # we will not emit the event
+            return
 
-    def _emit_exception(self, exc: Exception) -> None:
-        self._updated_future.set_exception(exc)
+        if exc is None:
+            self._updated_future.set_result(None)
+        else:
+            self._updated_future.set_exception(exc)
+
         self.__updated_future = create_future()
 
     @retry('_retry_policy')
@@ -171,6 +187,11 @@ class OrderBook:
         self._unsolved_queue.clear()
 
     async def _fetch(self) -> None:
+        """Should not be invoked directly by user, except for testing purpose
+        """
+
+        exception = None
+
         try:
             await self._fetch_snapshot()
         except Exception as e:
@@ -179,11 +200,8 @@ class OrderBook:
                 e
             )
 
-            self._emit_exception(exception)
-        else:
-            self._emit_updated()
-        finally:
-            self._fetching = False
+        self._fetching = False
+        self._emit_updated(exception)
 
     def _start_fetching(self) -> None:
         if not self._fetching:
