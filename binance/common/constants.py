@@ -60,11 +60,11 @@ MAX_RETRIES_BEFORE_RESET = 10
 #   and reset the retry counter after 10 failures
 
 
-def DEFAULT_RETRY_POLICY(fails: int) -> RetryPolicyStrategy:
+def DEFAULT_RETRY_POLICY(fails: int, _: Exception) -> RetryPolicyStrategy:
     return False, (fails - 1) % MAX_RETRIES_BEFORE_RESET * ATOM_RETRY_DELAY
 
 
-def NO_RETRY_POLICY(fails: int) -> RetryPolicyStrategy:
+def NO_RETRY_POLICY(_: int, __: Exception) -> RetryPolicyStrategy:
     return True, 0
 
 

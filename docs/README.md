@@ -199,7 +199,7 @@ All arguments of the constructor Client are keyworded arguments and all optional
 - **api_key?** `str=None` binance api key
 - **api_secret?** `str=None` binance api secret
 - **request_params?** `dict=None` global request params for aiohttp
-- **stream_retry_policy?** `Callable[[int], Tuple[bool, int, bool]]` retry policy for websocket stream. For details, see [RetryPolicy](#retrypolicy)
+- **stream_retry_policy?** `Callable[[int, Exception], Tuple[bool, int, bool]]` retry policy for websocket stream. For details, see [RetryPolicy](#retrypolicy)
 - **stream_timeout?** `int=5` seconds util the stream reach an timeout error
 - **api_host?** `str='https://api.binance.com'` to specify another API host for rest API requests. 这个参数的存在意义，使用方法，不累述，你懂的。
 - **stream_host?** `str='wss://stream.binance.com'` to specify another stream host for websocket connections.
@@ -384,11 +384,13 @@ And `interval` should be one of the `KlineInterval` enumerables
 Retry policy is used by binance-sdk to determine what to do next after the client fails to do some certain thing.
 
 ```py
-abandon, delay, reset = stream_retry_policy(retries)
+abandon, delay, reset = stream_retry_policy(retries, exception)
 
 # `retries` is the counter number of
 #   how many times has the stream retried to reconnect.
 # If the stream is disconnected just now for the first time, `retries` will be `0`
+
+# `exception` is the exception that raised which caused the failure
 
 # If abandon is `True`, then the client will give up reconnecting.
 # Otherwise:
@@ -444,7 +446,7 @@ loop.run_forever()
 - **kwargs**
   - **limit?** `int=100` limit of the orderbook
   - **client** `Client=None` the instance of `binance.Client`
-  - **retry_policy?** `Callable[[int], (bool, int, bool)]` retry policy for depth snapshot which has the same mechanism as `Client::stream_retry_policy`
+  - **retry_policy?** `Callable[[int, Exception], (bool, int, bool)]` retry policy for depth snapshot which has the same mechanism as `Client::stream_retry_policy`
 
 `OrderBook` is another public class that we could import from binance-sdk and you could also construct your own `OrderBook` instance.
 

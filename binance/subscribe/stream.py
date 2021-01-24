@@ -278,6 +278,8 @@ class Stream:
 
         self._conn_task.cancel()
 
+        # results = await asyncio.gather(*tasks, return_exceptions=True)
+
         try:
             # Make sure:
             # - conn_task is cancelled
