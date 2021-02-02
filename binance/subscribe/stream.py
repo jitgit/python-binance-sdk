@@ -72,6 +72,7 @@ class Stream:
 
     _socket: Optional[WebSocketClientProtocol]
     _message_futures: Dict[int, Future]
+    _retry_policy: RetryPolicy
 
     def __init__(
         self,
@@ -228,7 +229,7 @@ class Stream:
                 # Raise, so aioretry will reconnecting
                 raise e
 
-    async def _reconnect(self, exception: Exception, fails: int) -> None:
+    async def _reconnect(self, fails: int, exception: Exception) -> None:
         logger.error(
             format_msg(
                 'socket error %s, reconnecting %s...',
