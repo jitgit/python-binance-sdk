@@ -277,7 +277,7 @@ class Stream:
         if self._socket:
             tasks.append(
                 # make socket.close run in background
-                asyncio.create_task(self._socket.close(code))
+                self._socket.close(code)
             )
 
         self._conn_task.cancel()
