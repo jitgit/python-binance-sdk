@@ -384,25 +384,24 @@ And `interval` should be one of the `KlineInterval` enumerables
 Retry policy is used by binance-sdk to determine what to do next after the client fails to do some certain thing.
 
 ```py
-abandon, delay, reset = stream_retry_policy(retries, exception)
+abandon, delay = stream_retry_policy(info)
 
-# `retries` is the counter number of
-#   how many times has the stream retried to reconnect.
-# If the stream is disconnected just now for the first time, `retries` will be `0`
+# `info.fails` is the counter number of
+#   how many times has the stream encountered the connection failure.
+# If the stream is disconnected just now for the first time, `info.fails` will be `1`
 
-# `exception` is the exception that raised which caused the failure
+# `info.exception` is the exception that raised which caused the failure
 
 # If abandon is `True`, then the client will give up reconnecting.
 # Otherwise:
 # - The client will asyncio.sleep `delay` seconds before reconnecting.
-# - If reset is `True`, the client will reset the retry counter to `0`
 ```
 
 ## OrderBookHandlerBase(**kwargs)
 
 - **kwargs**
   - **limit?** `int=100` the limit of the depth snapshot
-  - **retry_policy?** `Callable=`
+  - **retry_policy?** `RetryPolicy=`
 
 By default, binance-sdk maintains the orderbook for you according to the rules of [the official documentation](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#how-to-manage-a-local-order-book-correctly).
 
@@ -474,7 +473,7 @@ Set depth limit which is used by [binance reset api](https://github.com/binance-
 
 ### orderbook.set_retry_policy(retry_policy) -> None
 
-- **retry_policy** `Callable`
+- **retry_policy** `RetryPolicy`
 
 Set retry policy of the certain orderbook
 

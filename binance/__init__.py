@@ -1,5 +1,10 @@
 __version__ = '1.2.6'
 
+from aioretry import (
+    RetryPolicy,
+    RetryPolicyStrategy,
+    RetryInfo
+)
 from binance.client import Client
 from binance.common.constants import (
     SubType,

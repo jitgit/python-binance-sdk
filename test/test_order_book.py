@@ -143,7 +143,7 @@ async def test_order_book():
 
         print('round four : retry policy -> abandon')
 
-        def no_retry_policy(fails, _):
+        def no_retry_policy(_):
             return True, 0
 
         orderbook.set_retry_policy(no_retry_policy)
@@ -198,8 +198,8 @@ async def test_order_book():
         # will fetch twice
         preset_10()
 
-        def allow_retry_once(fails: int, _):
-            if fails > 1:
+        def allow_retry_once(info):
+            if info.fails > 1:
                 return True, 0
 
             return False, 0

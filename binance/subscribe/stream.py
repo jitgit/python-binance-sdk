@@ -20,6 +20,7 @@ from websockets.exceptions import (
 
 from aioretry import (
     RetryPolicy,
+    RetryInfo,
     retry
 )
 
@@ -229,12 +230,12 @@ class Stream:
                 # Raise, so aioretry will reconnecting
                 raise e
 
-    async def _reconnect(self, fails: int, exception: Exception) -> None:
+    async def _reconnect(self, info: RetryInfo) -> None:
         logger.error(
             format_msg(
                 'socket error %s, reconnecting %s...',
-                repr_exception(exception),
-                fails
+                repr_exception(info.exception),
+                info.fails
             )
         )
 

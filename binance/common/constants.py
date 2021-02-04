@@ -1,6 +1,9 @@
 from enum import Enum as _Enum
 
-from aioretry import RetryPolicyStrategy
+from aioretry import (
+    RetryPolicyStrategy,
+    RetryInfo
+)
 
 
 KLINE_TYPE_PREFIX = 'kline_'
@@ -60,11 +63,14 @@ MAX_RETRIES_BEFORE_RESET = 10
 #   and reset the retry counter after 10 failures
 
 
-def DEFAULT_RETRY_POLICY(fails: int, _: Exception) -> RetryPolicyStrategy:
-    return False, (fails - 1) % MAX_RETRIES_BEFORE_RESET * ATOM_RETRY_DELAY
+def DEFAULT_RETRY_POLICY(info: RetryInfo) -> RetryPolicyStrategy:
+    return (
+        False,
+        (info.fails - 1) % MAX_RETRIES_BEFORE_RESET * ATOM_RETRY_DELAY
+    )
 
 
-def NO_RETRY_POLICY(_: int, __: Exception) -> RetryPolicyStrategy:
+def NO_RETRY_POLICY(_) -> RetryPolicyStrategy:
     return True, 0
 
 
