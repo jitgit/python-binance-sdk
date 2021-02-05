@@ -39,9 +39,9 @@ ORDER_BOOK_COLUMNS_MAP = {
 ORDER_BOOK_COLUMNS = ORDER_BOOK_COLUMNS_MAP.keys()
 
 
-def create_depth_df(l):
+def create_depth_df(depth_list: list):
     return pd.DataFrame([
-        {'price': x[0], 'quantity': x[1]} for x in l
+        {'price': x[0], 'quantity': x[1]} for x in depth_list
     ])
 
 

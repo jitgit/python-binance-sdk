@@ -97,7 +97,7 @@ async def test_json_error():
     server = SocketServer()
     await server.invalid_json().start().run()
 
-    uri = 'ws://localhost:%s/stream' % PORT
+    uri = f'ws://localhost:{PORT}/stream'
 
     print('connecting', uri)
     stream = Stream(

@@ -38,7 +38,7 @@ async def test_stream_timeout_disconnect_reconnect():
         if should_raise:
             raise RuntimeError('this is a warning for testing, and it is by design, not a bug, just ignore it.')
 
-    def retry_policy(fails, _):
+    def retry_policy(info):
         return False, 0.05
 
     server = SocketServer()
@@ -46,7 +46,7 @@ async def test_stream_timeout_disconnect_reconnect():
     await server.run()
     print('\nserver started')
 
-    uri = 'ws://localhost:%s/stream' % PORT
+    uri = f'ws://localhost:{PORT}/stream'
 
     print('connecting', uri)
     stream = Stream(
